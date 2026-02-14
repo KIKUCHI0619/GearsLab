@@ -57,7 +57,7 @@ const EquipmentView: React.FC<EquipmentViewProps> = ({ filterCategory }) => {
     e.preventDefault();
     if (!model.trim()) return;
 
-    // 画像URLが空なら「モデル名.png」をデフォルトにする
+    // 画像ファイル名が空なら「モデル名.png」をデフォルトにする
     const finalImageName = imageFileName.trim() || `${model.trim()}.png`;
 
     const newItem = {
@@ -67,7 +67,7 @@ const EquipmentView: React.FC<EquipmentViewProps> = ({ filterCategory }) => {
       category,
       rating,
       description,
-      imageUrl: finalImageName, // ここにファイル名を格納
+      imageUrl: finalImageName, // ここにはファイル名のみを格納
       purchaseUrl: purchaseUrl.trim(),
       date: new Date().toLocaleDateString()
     };
@@ -92,7 +92,6 @@ const EquipmentView: React.FC<EquipmentViewProps> = ({ filterCategory }) => {
       const storeMatch = result.text.match(/STORE[:\s]+(https?:\/\/[^\s\n\r"']+)/i);
       if (storeMatch && storeMatch[1]) setPurchaseUrl(storeMatch[1].replace(/[()]/g, ''));
       if (!description) setDescription(`${brand} ${model} の情報をAIで取得しました。`);
-      // 画像はファイル名運用にするため、自動入力は「モデル名.png」を提案する形にする
       if (!imageFileName) setImageFileName(`${model}.png`);
     } catch (e) {
       console.error(e);
@@ -111,6 +110,13 @@ const EquipmentView: React.FC<EquipmentViewProps> = ({ filterCategory }) => {
       saveItems(items.map(i => i.id === id ? { ...i, description: polished } : i));
     } catch (e) { console.error(e); }
     finally { setIsPolishing(null); }
+  };
+
+  // 画像パスを生成するヘルパー関数
+  const getImagePath = (fileName: string) => {
+    if (!fileName) return 'Noimage.png';
+    // Imagesフォルダ内のファイルを参照するようにパスを結合
+    return `Images/${fileName}`;
   };
 
   return (
@@ -199,7 +205,7 @@ const EquipmentView: React.FC<EquipmentViewProps> = ({ filterCategory }) => {
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-1">Image Filename (e.g. Babyface.png)</label>
                   <input type="text" value={imageFileName} onChange={(e) => setImageFileName(e.target.value)} placeholder="Default: model.png" 
                       className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-5 py-4 text-white outline-none focus:border-indigo-500 transition-colors" />
-                  <p className="text-[10px] text-slate-500 italic px-1">※画像がない場合は Noimage.png が表示されます</p>
+                  <p className="text-[10px] text-slate-500 italic px-1">※画像は Images/ フォルダに配置してください。無い場合は Noimage.png が表示されます。</p>
                 </div>
 
                 <button type="button" onClick={handleAISearch} disabled={isSearching}
@@ -209,7 +215,7 @@ const EquipmentView: React.FC<EquipmentViewProps> = ({ filterCategory }) => {
                   ) : (
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                   )}
-                  <span>Search Store Link & Suggestion</span>
+                  <span>Search Info & Suggest Name</span>
                 </button>
               </div>
 
@@ -244,7 +250,7 @@ const EquipmentView: React.FC<EquipmentViewProps> = ({ filterCategory }) => {
               
               <div className="aspect-[4/3] bg-slate-800 relative overflow-hidden">
                 <img 
-                  src={item.imageUrl || 'Noimage.png'} 
+                  src={getImagePath(item.imageUrl)} 
                   alt={item.model} 
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = 'Noimage.png';

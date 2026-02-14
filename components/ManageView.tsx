@@ -8,7 +8,6 @@ const ManageView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [csvInput, setCsvInput] = useState('');
   const [showImport, setShowImport] = useState(false);
-  const [isAutoUpdating, setIsAutoUpdating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Editing form state
@@ -136,6 +135,11 @@ const ManageView: React.FC = () => {
     `${i.brand} ${i.model}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const getImagePath = (fileName: string) => {
+    if (!fileName) return 'Noimage.png';
+    return `Images/${fileName}`;
+  };
+
   return (
     <div className="h-full overflow-y-auto no-scrollbar p-6 md:p-10 bg-slate-950/50">
       <div className="max-w-6xl mx-auto space-y-8 pb-20">
@@ -143,7 +147,7 @@ const ManageView: React.FC = () => {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-800 pb-8">
           <div>
             <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Inventory Manager</h2>
-            <p className="text-slate-500 text-sm mt-1">Archive administration, backups, and metadata management.</p>
+            <p className="text-slate-500 text-sm mt-1">Archive administration and metadata management.</p>
           </div>
           
           <div className="flex flex-wrap gap-3">
@@ -220,6 +224,7 @@ const ManageView: React.FC = () => {
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-slate-500 uppercase px-1">Image Filename (e.g. Babyface.png)</label>
                     <input type="text" value={editImageUrl} onChange={(e) => setEditImageUrl(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none transition-colors" />
+                    <p className="text-[9px] text-slate-500 px-1">※Images/ フォルダ内のファイル名を入力してください</p>
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -261,7 +266,7 @@ const ManageView: React.FC = () => {
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 bg-slate-950 rounded-xl overflow-hidden flex items-center justify-center border border-slate-800 group-hover:border-indigo-500/50 transition-colors">
                             <img 
-                              src={item.imageUrl || 'Noimage.png'} 
+                              src={getImagePath(item.imageUrl)} 
                               onError={(e) => { (e.target as HTMLImageElement).src = 'Noimage.png'; }}
                               className="w-full h-full object-cover" 
                             />
@@ -292,11 +297,6 @@ const ManageView: React.FC = () => {
                 </tbody>
               </table>
             </div>
-            {filteredItems.length === 0 && (
-              <div className="p-20 text-center">
-                <p className="text-slate-600 font-medium italic">No entries found matching your search.</p>
-              </div>
-            )}
           </div>
         )}
       </div>
