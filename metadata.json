@@ -1,0 +1,7 @@
+{
+  "name": "Fal Gear Lab",
+  "description": "A professional audio equipment cataloging tool powered by Gemini AI with search grounding.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
