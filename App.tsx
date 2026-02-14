@@ -11,6 +11,7 @@ type ViewType = 'all' | 'Microphone' | 'Preamp/Interface/Amp' | 'Speaker' | 'Hea
 
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<ViewType>('all');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const renderContent = () => {
     switch (activeView) {
@@ -20,6 +21,11 @@ const App: React.FC = () => {
       case 'voice': return <VoiceView />;
       default: return <EquipmentView filterCategory={activeView === 'all' ? undefined : activeView} />;
     }
+  };
+
+  const handleMenuClick = (id: ViewType) => {
+    setActiveView(id);
+    setIsSidebarOpen(false); // モバイルでクリックしたら閉じる
   };
 
   const menuItems = [
@@ -43,8 +49,16 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100 font-sans overflow-hidden">
+      {/* Overlay for mobile sidebar */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-72 bg-slate-900 border-r border-slate-800 flex flex-col z-50">
+      <aside className={`fixed inset-y-0 left-0 w-72 bg-slate-900 border-r border-slate-800 flex flex-col z-[70] transition-transform duration-300 lg:relative lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-8 h-full overflow-y-auto no-scrollbar">
           <div className="flex items-center space-x-3 mb-10">
             <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
@@ -60,7 +74,7 @@ const App: React.FC = () => {
             {menuItems.map(item => (
               <button
                 key={item.id}
-                onClick={() => setActiveView(item.id as any)}
+                onClick={() => handleMenuClick(item.id as any)}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
                   activeView === item.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-400 hover:bg-slate-800'
                 }`}
@@ -76,7 +90,7 @@ const App: React.FC = () => {
             {adminItems.map(item => (
               <button
                 key={item.id}
-                onClick={() => setActiveView(item.id as any)}
+                onClick={() => handleMenuClick(item.id as any)}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
                   activeView === item.id ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/20' : 'text-slate-400 hover:bg-slate-800'
                 }`}
@@ -92,7 +106,7 @@ const App: React.FC = () => {
             {labItems.map(item => (
               <button
                 key={item.id}
-                onClick={() => setActiveView(item.id as any)}
+                onClick={() => handleMenuClick(item.id as any)}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
                   activeView === item.id ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'text-slate-400 hover:bg-slate-800'
                 }`}
@@ -105,13 +119,37 @@ const App: React.FC = () => {
         </div>
         
         <div className="mt-auto p-8 border-t border-slate-800">
-          <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Version 2.5.0 Build</p>
+          <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Version 2.5.1 Build</p>
         </div>
       </aside>
 
       {/* Main Area */}
       <div className="flex-1 flex flex-col relative overflow-hidden">
-        <Navbar />
+        <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => setIsSidebarOpen(true)}
+                className="lg:hidden p-2 text-slate-400 hover:text-white"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <div className="lg:hidden flex items-center space-x-2">
+                <span className="text-lg font-black tracking-tighter text-white">GEAR VAULT</span>
+              </div>
+            </div>
+            
+            <div className="hidden md:flex items-center space-x-6">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Digital Archive</span>
+              <div className="h-4 w-[1px] bg-slate-800"></div>
+              <a href="https://www.soundhouse.co.jp/" target="_blank" className="text-xs font-bold text-slate-400 hover:text-white transition-colors">Sound House</a>
+              <a href="https://www.sweetwater.com/" target="_blank" className="text-xs font-bold text-slate-400 hover:text-white transition-colors">Sweetwater</a>
+            </div>
+          </div>
+        </header>
+
         <main className="flex-1 overflow-hidden relative">
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/5 rounded-full blur-[120px]"></div>
